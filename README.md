@@ -1,69 +1,84 @@
-# React + TypeScript + Vite
+# Seller Console - Lead Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, responsive lead management system built with React, TypeScript, and Tailwind CSS. This application helps sales teams manage leads, convert them to opportunities, and track their progress through the sales pipeline.
 
-Currently, two official plugins are available:
+## Ideas and IA
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Got my ideas for the UI/UX design from https://uitify.com/case-studies.
+Used Cursor for Fixing Bugs, generating data mocks and basicly making myself faster and precise in developing a web-app.
 
-## Expanding the ESLint configuration
+## 🚀 Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Core Functionality
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Lead Management**: View, search, filter, and manage leads
+- **Opportunity Conversion**: Convert qualified leads to opportunities
+- **Responsive Design**: Optimized for desktop and mobile devices
+- **Real-time Search**: Debounced search with instant filtering
+- **Sorting**: Sort leads by score (ascending/descending)
+- **Status Tracking**: Track lead status (New, Contacted, Qualified, Unqualified)
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+### User Interface
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Modern UI**: Clean, professional interface with Tailwind CSS
+- **Mobile-First**: Responsive design that works on all devices
+- **Interactive Components**: Smooth animations and transitions
+- **Loading States**: Proper loading indicators and error handling
+- **Detail Panels**: Inline editing of lead information
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Technical Features
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **TypeScript**: Full type safety and better development experience
+- **React Hooks**: Modern React patterns with useState, useEffect, useMemo
+- **Performance Optimized**: Debounced search, memoized components
+- **Error Handling**: Graceful error handling with user feedback
+- **Mock Data**: 100+ sample leads for testing and demonstration
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 📱 Responsive Design
+
+### Mobile Layout (< 1024px)
+
+- **Top Navigation**: Horizontal menu at the top with dropdown
+- **Full-Screen Leads**: Leads section takes most of the screen height
+- **Scroll Navigation**: Opportunities appear below, requiring page scroll
+- **Touch Optimized**: Large touch targets and mobile-friendly interactions
+
+### Desktop Layout (≥ 1024px)
+
+- **Side Navigation**: Vertical menu on the left with toggle functionality
+- **Side-by-Side Layout**: Leads and Opportunities displayed side by side
+- **Independent Scrolling**: Each section has its own scroll area
+- **Hover Effects**: Rich desktop interactions and hover states
+
+## 🛠️ Technology Stack
+
+- **Frontend Framework**: React 19.1.1
+- **Language**: TypeScript 5.8.3
+- **Styling**: Tailwind CSS 4.1.12
+- **Build Tool**: Vite 7.1.2
+- **Icons**: Lucide React
+- **Linting**: ESLint 9.33.0
+
+## 📦 Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone <repository-url>
+   cd uitify-console
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**
+
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser**
+   Navigate to `http://localhost:5173`

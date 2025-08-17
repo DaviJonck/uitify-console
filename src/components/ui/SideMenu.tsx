@@ -11,6 +11,7 @@ import {
   Settings,
   LayoutDashboard,
 } from "lucide-react";
+
 import NavItem from "./NavItem";
 
 function SideMenu() {
