@@ -1,5 +1,9 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { getLeads, saveLead } from "../services/LeadService";
+import {
+  getOpportunities,
+  saveOpportunity,
+} from "../services/OpportunityService";
 import type { Lead, Opportunity } from "../types/Leads";
 
 const useDebounce = (value: string, delay: number) => {
@@ -28,19 +32,23 @@ export const useLeads = () => {
   const [selectedLeadId, setSelectedLeadId] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchLeads = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        const data = await getLeads();
-        setLeads(data);
+        const [leadsData, opportunitiesData] = await Promise.all([
+          getLeads(),
+          getOpportunities(),
+        ]);
+        setLeads(leadsData);
+        setOpportunities(opportunitiesData);
       } catch (err) {
-        setError("Failed to load leads data.");
+        setError("Failed to load data.");
         console.error(err);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchLeads();
+    fetchData();
   }, []);
 
   const filteredLeads = useMemo(() => {
@@ -91,18 +99,28 @@ export const useLeads = () => {
     [handleClosePanel]
   );
 
-  const handleConvertLead = (leadToConvert: Lead) => {
+  const handleConvertLead = async (
+    leadToConvert: Lead,
+    opportunityData: Partial<Opportunity>
+  ) => {
     const { ...originalLeadData } = leadToConvert;
     const newOpportunity: Opportunity = {
       id: Date.now(),
-      name: `${leadToConvert.name}'s Opportunity`,
+      name: opportunityData.name || `${leadToConvert.name}'s Opportunity`,
       accountName: leadToConvert.company,
-      stage: "Discovery",
+      stage: opportunityData.stage || "Discovery",
+      amount: opportunityData.amount,
       originalLeadData: originalLeadData,
     };
-    setOpportunities((prev) => [...prev, newOpportunity]);
-    setLeads((prev) => prev.filter((lead) => lead.id !== leadToConvert.id));
-    handleClosePanel();
+
+    try {
+      await saveOpportunity(newOpportunity);
+      setOpportunities((prev) => [...prev, newOpportunity]);
+      setLeads((prev) => prev.filter((lead) => lead.id !== leadToConvert.id));
+      handleClosePanel();
+    } catch (error) {
+      console.error("Failed to save opportunity:", error);
+    }
   };
 
   const handleUnconvertOpportunity = (idToUnconvert: number) => {
@@ -118,6 +136,25 @@ export const useLeads = () => {
 
     setLeads((prev) => [...prev, newLead]);
     setOpportunities((prev) => prev.filter((opp) => opp.id !== idToUnconvert));
+  };
+
+  const handleUpdateOpportunity = async (
+    id: number,
+    updates: Partial<Opportunity>
+  ) => {
+    try {
+      const updatedOpportunity = opportunities.find((opp) => opp.id === id);
+      if (!updatedOpportunity) return;
+
+      const newOpportunity = { ...updatedOpportunity, ...updates };
+      await saveOpportunity(newOpportunity);
+
+      setOpportunities((prev) =>
+        prev.map((opp) => (opp.id === id ? newOpportunity : opp))
+      );
+    } catch (error) {
+      console.error("Failed to update opportunity:", error);
+    }
   };
 
   return {
@@ -138,5 +175,6 @@ export const useLeads = () => {
     handleSaveLead,
     handleConvertLead,
     handleUnconvertOpportunity,
+    handleUpdateOpportunity,
   };
 };

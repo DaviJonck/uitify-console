@@ -26,6 +26,7 @@ function MainContent() {
     handleSaveLead,
     handleConvertLead,
     handleUnconvertOpportunity,
+    handleUpdateOpportunity,
   } = useLeads();
 
   return (
@@ -88,6 +89,7 @@ function MainContent() {
             <OpportunityList
               opportunities={opportunities}
               onUnconvert={handleUnconvertOpportunity}
+              onUpdateOpportunity={handleUpdateOpportunity}
             />
           </div>
         </div>

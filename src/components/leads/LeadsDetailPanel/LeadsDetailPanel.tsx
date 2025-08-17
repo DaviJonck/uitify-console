@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import type { Lead } from "../../../types/Leads";
+import type { Lead, Opportunity } from "../../../types/Leads";
 
 import Input from "../../ui/input";
 import Select from "../../ui/Select";
@@ -10,7 +10,7 @@ interface LeadDetailPanelProps {
   lead: Lead | null;
   onClose: () => void;
   onSave: (updatedLead: Lead) => Promise<void>;
-  onConvert: (lead: Lead) => void;
+  onConvert: (lead: Lead, opportunityData: Partial<Opportunity>) => void;
 }
 
 function LeadDetailPanel({
@@ -22,10 +22,21 @@ function LeadDetailPanel({
   const [formData, setFormData] = useState<Partial<Lead>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showConvertModal, setShowConvertModal] = useState(false);
+  const [opportunityData, setOpportunityData] = useState<Partial<Opportunity>>({
+    name: "",
+    stage: "Discovery",
+    amount: undefined,
+  });
 
   useEffect(() => {
     if (lead) {
       setFormData({ email: lead.email, status: lead.status });
+      setOpportunityData({
+        name: `${lead.name}'s Opportunity`,
+        stage: "Discovery",
+        amount: undefined,
+      });
       setError(null);
     }
   }, [lead]);
@@ -35,6 +46,17 @@ function LeadDetailPanel({
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleOpportunityInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setOpportunityData((prev) => ({
+      ...prev,
+      [name]:
+        name === "amount" ? (value ? parseFloat(value) : undefined) : value,
+    }));
   };
 
   const validateEmail = (email: string) =>
@@ -55,6 +77,20 @@ function LeadDetailPanel({
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleConvertClick = () => {
+    setShowConvertModal(true);
+  };
+
+  const handleConvertConfirm = () => {
+    if (!lead) return;
+    onConvert(lead, opportunityData);
+    setShowConvertModal(false);
+  };
+
+  const handleConvertCancel = () => {
+    setShowConvertModal(false);
   };
 
   return (
@@ -132,11 +168,17 @@ function LeadDetailPanel({
               </div>
               {error && <p className="text-sm text-red-600">{error}</p>}
             </div>
-            <div className="p-4 border-t bg-gray-50 flex justify-between items-center">
-              <Button variant="primary" onClick={() => onConvert(lead)}>
-                Convert Lead
-              </Button>
-              <div className="space-x-2">
+            <div className="p-4 border-t bg-gray-50 flex flex-col gap-3">
+              <div className="flex justify-center">
+                <Button
+                  variant="primary"
+                  onClick={handleConvertClick}
+                  className="w-full max-w-xs bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                >
+                  Convert to Opportunity
+                </Button>
+              </div>
+              <div className="flex justify-between items-center">
                 <Button variant="secondary" onClick={onClose}>
                   Cancel
                 </Button>
@@ -145,13 +187,114 @@ function LeadDetailPanel({
                   onClick={handleSave}
                   isLoading={isSaving}
                 >
-                  Save
+                  Save Changes
                 </Button>
               </div>
             </div>
           </div>
         )}
       </div>
+
+      {showConvertModal && (
+        <>
+          <div
+            className="fixed cursor-pointer inset-0 z-50 backdrop-blur-sm"
+            onClick={handleConvertCancel}
+          />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Convert to Opportunity
+                </h3>
+                <button
+                  onClick={handleConvertCancel}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <span className="sr-only ">Close</span>
+                  <svg
+                    className="h-6 w-6 cursor-pointer"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Opportunity Name
+                  </label>
+                  <Input
+                    name="name"
+                    value={opportunityData.name || ""}
+                    onChange={handleOpportunityInputChange}
+                    placeholder="Enter opportunity name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Stage
+                  </label>
+                  <Select
+                    name="stage"
+                    value={opportunityData.stage || "Discovery"}
+                    onChange={handleOpportunityInputChange}
+                  >
+                    <option value="Discovery">Discovery</option>
+                    <option value="Proposal">Proposal</option>
+                    <option value="Negotiation">Negotiation</option>
+                    <option value="Closed">Closed</option>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Amount (Optional)
+                  </label>
+                  <Input
+                    name="amount"
+                    type="number"
+                    value={opportunityData.amount || ""}
+                    onChange={handleOpportunityInputChange}
+                    placeholder="Enter amount"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+
+                <div className="bg-blue-50 p-3 rounded-md">
+                  <p className="text-sm text-blue-800">
+                    <strong>Account:</strong> {lead?.company}
+                  </p>
+                  <p className="text-sm text-blue-600 mt-1">
+                    This opportunity will be created from the lead "{lead?.name}
+                    "
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 mt-6">
+                <Button variant="secondary" onClick={handleConvertCancel}>
+                  Cancel
+                </Button>
+                <Button variant="primary" onClick={handleConvertConfirm}>
+                  Convert to Opportunity
+                </Button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }
